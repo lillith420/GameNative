@@ -59,6 +59,8 @@ android {
         buildConfigField("boolean", "GOLD", "false")
 
         buildConfigField("String", "CLOUD_PROJECT_NUMBER", """ "0" """)
+        buildConfigField("String", "POSTHOG_API_KEY", """ "phx_BHituEUbaDxeu9oeyKCajLqwjbcRiZYtTDQtbU85aCAzqUjr" """)
+        buildConfigField("String", "POSTHOG_HOST", """ "https://us.i.posthog.com" """)
         buildConfigField("String", "STEAMGRIDDB_API_KEY", """ "65063399717227a51f34e00ffee55932" """)
 
         val iconValue = "@mipmap/ic_launcher"
@@ -279,6 +281,7 @@ dependencies {
     testImplementation(libs.orgJson)
     testImplementation(libs.mockwebserver)
 
+    implementation("com.posthog:posthog-android:3.8.0")
     implementation("com.auth0.android:jwtdecode:2.0.2")
 
     "modernXrImplementation"("com.meta.horizon.platform.sdk:core-kotlin:0.2.2")
