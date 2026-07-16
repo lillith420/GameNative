@@ -81,7 +81,7 @@ jobs:
         yes | "$SDKMANAGER" --install "build-tools;34.0.0"
 
     - name: Build with Gradle
-      run: ./gradlew :app:bundleLegacyRelease :app:bundleModernRelease :app:bundleLegacyXrRelease
+      run: ./gradlew  :app:bundleModernDebug
 
     - name: Stage bundles
       run: |
