@@ -19,6 +19,11 @@ jobs:
           java-version: "17"
           distribution: "temurin"
           cache: gradle
+      - name: Clean project
+        run: ./gradlew clean
+        
+      - name: Build with Gradle
+        run: ./gradlew assembleModernDebug
 
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v4
