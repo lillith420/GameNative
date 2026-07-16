@@ -107,6 +107,10 @@ android {
             ndk.abiFilters += listOf("arm64-v8a")
             buildConfigField("boolean", "MODERN_ANDROID", "true")
             buildConfigField("String", "PRELOAD_BIONIC_SO", "\"libredirect-bionic-wx.so\"")
+            buildConfigField("String", "CLOUD_PROJECT_NUMBER", "\"0\"")
+            buildConfigField("String", "POSTHOG_API_KEY", "\"phx_BHituEUbaDxeu9oeyKCajLqwjbcRiZYtTDQtbU85aCAzqUjr\"")
+            buildConfigField("String", "POSTHOG_HOST", "\"https://us.i.posthog.com\"")
+            buildConfigField("String", "STEAMGRIDDB_API_KEY", "\"65063399717227a51f34e00ffee55932\"")
         }
         create("modernXr") {
             dimension = "androidApi"
