@@ -20,15 +20,6 @@ val keystoreProperties: Properties? = if (keystorePropertiesFile.exists()) {
     }
 } else null
 
-// Safely resolve environment variables at the top level
-val cloudProjectNumber: String = System.getenv("CLOUD_PROJECT_NUMBER") ?: "0"
-val posthogApiKey: String = System.getenv("POSTHOG_API_KEY") ?: "none"
-val posthogHost: String = System.getenv("POSTHOG_HOST") ?: "https://us.i.posthog.com"
-val steamGridDbApiKey: String = System.getenv("STEAMGRIDDB_API_KEY") ?: "none"
-
-val metaAppId: String = System.getenv("META_APP_ID") ?: ""
-val productSku: String = System.getenv("PRODUCT_SKU") ?: ""
-
 room {
     schemaDirectory("$projectDir/schemas")
 }
@@ -67,11 +58,11 @@ android {
 
         buildConfigField("boolean", "GOLD", "false")
 
-        // Populate fields with safely resolved variables
-        buildConfigField("String", "CLOUD_PROJECT_NUMBER", "\"$cloudProjectNumber\"")
-        buildConfigField("String", "POSTHOG_API_KEY", "\"$posthogApiKey\"")
-        buildConfigField("String", "POSTHOG_HOST", "\"$posthogHost\"")
-        buildConfigField("String", "STEAMGRIDDB_API_KEY", "\"$steamGridDbApiKey\"")
+        // HARDCODED DEFAULTS: The escaped quotes ensure these are always valid strings
+        buildConfigField("String", "CLOUD_PROJECT_NUMBER", "\"0\"")
+        buildConfigField("String", "POSTHOG_API_KEY", "\"none\"")
+        buildConfigField("String", "POSTHOG_HOST", "\"https://us.i.posthog.com\"")
+        buildConfigField("String", "STEAMGRIDDB_API_KEY", "\"none\"")
 
         val iconValue = "@mipmap/ic_launcher"
         val iconRoundValue = "@mipmap/ic_launcher_round"
@@ -128,8 +119,9 @@ android {
             buildConfigField("String", "PRELOAD_BIONIC_SO", "\"libredirect-bionic-wx.so\"")
             buildConfigField("boolean", "XR_BUILD", "true")
             buildConfigField("boolean", "MODERN_XR", "true")
-            buildConfigField("String", "META_APP_ID", "\"$metaAppId\"")
-            buildConfigField("String", "PRODUCT_SKU", "\"$productSku\"")
+            // Safely pulling environment variables for these specific fields
+            buildConfigField("String", "META_APP_ID", "\"${System.getenv("META_APP_ID") ?: ""}\"")
+            buildConfigField("String", "PRODUCT_SKU", "\"${System.getenv("PRODUCT_SKU") ?: ""}\"")
             manifestPlaceholders["screenOrientation"] = "landscape"
         }
     }
@@ -239,7 +231,6 @@ android {
 dependencies {
     implementation(libs.material)
     implementation("androidx.browser:browser:1.8.0")
-
     val localBuild = false
     if (localBuild) {
         implementation(files("../../JavaSteam/build/libs/javasteam-1.8.0.1-22-SNAPSHOT.jar"))
