@@ -58,7 +58,6 @@ android {
 
         buildConfigField("boolean", "GOLD", "false")
 
-        // Use triple-quotes for absolute string literal safety
         buildConfigField("String", "CLOUD_PROJECT_NUMBER", """ "0" """)
         buildConfigField("String", "POSTHOG_API_KEY", """ "none" """)
         buildConfigField("String", "POSTHOG_HOST", """ "https://us.i.posthog.com" """)
@@ -72,8 +71,6 @@ android {
                 "roundIcon" to iconRoundValue,
             ),
         )
-     
-    }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -121,7 +118,6 @@ android {
             buildConfigField("String", "PRELOAD_BIONIC_SO", "\"libredirect-bionic-wx.so\"")
             buildConfigField("boolean", "XR_BUILD", "true")
             buildConfigField("boolean", "MODERN_XR", "true")
-            // Safely pulling environment variables for these specific fields
             buildConfigField("String", "META_APP_ID", "\"${System.getenv("META_APP_ID") ?: ""}\"")
             buildConfigField("String", "PRODUCT_SKU", "\"${System.getenv("PRODUCT_SKU") ?: ""}\"")
             manifestPlaceholders["screenOrientation"] = "landscape"
