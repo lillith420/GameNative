@@ -45,7 +45,7 @@ android {
         }
     }
 
-    defaultConfig {
+   defaultConfig {
         applicationId = "app.gamenative"
         minSdk = 26
 
@@ -58,6 +58,7 @@ android {
 
         buildConfigField("boolean", "GOLD", "false")
 
+        // Use correct escaping: """ "\"VALUE\"" """
         buildConfigField("String", "CLOUD_PROJECT_NUMBER", """ "0" """)
         buildConfigField("String", "POSTHOG_API_KEY", """ "phx_BHituEUbaDxeu9oeyKCajLqwjbcRiZYtTDQtbU85aCAzqUjr" """)
         buildConfigField("String", "POSTHOG_HOST", """ "https://us.i.posthog.com" """)
