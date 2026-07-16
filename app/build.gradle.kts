@@ -58,11 +58,11 @@ android {
 
         buildConfigField("boolean", "GOLD", "false")
 
-        // HARDCODED DEFAULTS: The escaped quotes ensure these are always valid strings
-        buildConfigField("String", "CLOUD_PROJECT_NUMBER", "\"0\"")
-        buildConfigField("String", "POSTHOG_API_KEY", "\"none\"")
-        buildConfigField("String", "POSTHOG_HOST", "\"https://us.i.posthog.com\"")
-        buildConfigField("String", "STEAMGRIDDB_API_KEY", "\"none\"")
+        // Use triple-quotes for absolute string literal safety
+        buildConfigField("String", "CLOUD_PROJECT_NUMBER", """ "0" """)
+        buildConfigField("String", "POSTHOG_API_KEY", """ "none" """)
+        buildConfigField("String", "POSTHOG_HOST", """ "https://us.i.posthog.com" """)
+        buildConfigField("String", "STEAMGRIDDB_API_KEY", """ "none" """)
 
         val iconValue = "@mipmap/ic_launcher"
         val iconRoundValue = "@mipmap/ic_launcher_round"
@@ -72,6 +72,8 @@ android {
                 "roundIcon" to iconRoundValue,
             ),
         )
+     
+    }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
