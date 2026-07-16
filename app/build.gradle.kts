@@ -58,11 +58,11 @@ android {
 
         buildConfigField("boolean", "GOLD", "false")
 
-        // Use correct escaping: """ "\"VALUE\"" """
-        buildConfigField("String", "CLOUD_PROJECT_NUMBER", """ "0" """)
-        buildConfigField("String", "POSTHOG_API_KEY", """ "phx_BHituEUbaDxeu9oeyKCajLqwjbcRiZYtTDQtbU85aCAzqUjr" """)
-        buildConfigField("String", "POSTHOG_HOST", """ "https://us.i.posthog.com" """)
-        buildConfigField("String", "STEAMGRIDDB_API_KEY", """ "65063399717227a51f34e00ffee55932" """)
+        // Using explicit escaping for Java string generation
+        buildConfigField("String", "CLOUD_PROJECT_NUMBER", "\"0\"")
+        buildConfigField("String", "POSTHOG_API_KEY", "\"phx_BHituEUbaDxeu9oeyKCajLqwjbcRiZYtTDQtbU85aCAzqUjr\"")
+        buildConfigField("String", "POSTHOG_HOST", "\"https://us.i.posthog.com\"")
+        buildConfigField("String", "STEAMGRIDDB_API_KEY", "\"65063399717227a51f34e00ffee55932\"")
 
         val iconValue = "@mipmap/ic_launcher"
         val iconRoundValue = "@mipmap/ic_launcher_round"
@@ -83,7 +83,6 @@ android {
             "proguard-rules.pro",
         )
     }
-
     flavorDimensions += "androidApi"
     productFlavors {
         create("legacy") {
