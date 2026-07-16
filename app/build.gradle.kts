@@ -68,13 +68,14 @@ android {
         versionName = "1.1.1"
 
         buildConfigField("boolean", "GOLD", "false")
-        fun secret(name: String) =
-            project.findProperty(name) as String? ?: System.getenv(name) ?: ""
 
-        buildConfigField("String", "POSTHOG_API_KEY", "\"${secret("POSTHOG_API_KEY")}\"")
-        buildConfigField("String", "POSTHOG_HOST",  "\"${secret("POSTHOG_HOST")}\"")
-        buildConfigField("String", "STEAMGRIDDB_API_KEY", "\"${secret("STEAMGRIDDB_API_KEY")}\"")
-        buildConfigField("String", "CLOUD_PROJECT_NUMBER", "\"${secret("CLOUD_PROJECT_NUMBER")}\"")
+        // Personal fork: no analytics/box-art keys needed. Empty string literals keep
+        // BuildConfig valid. Drop real values in later via gradle.properties if wanted.
+        buildConfigField("String", "CLOUD_PROJECT_NUMBER", "\"\"")
+        buildConfigField("String", "POSTHOG_API_KEY", "\"\"")
+        buildConfigField("String", "POSTHOG_HOST", "\"\"")
+        buildConfigField("String", "STEAMGRIDDB_API_KEY", "\"\"")
+
         val iconValue = "@mipmap/ic_launcher"
         val iconRoundValue = "@mipmap/ic_launcher_round"
         manifestPlaceholders.putAll(
@@ -105,7 +106,6 @@ android {
             "ru",      // Russian
             "ko",      // Korean
             "ja",      // Japanese
-            // TODO: Add more languages here using the ISO 639-1 locale code with regional qualifiers (e.g., "pt-rPT" for European Portuguese)
         )
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -274,52 +274,8 @@ android {
     }
 
     kotlinter {
-        ignoreFormatFailures  = false
+        ignoreFormatFailures = false
     }
-
-    // externalNativeBuild {
-    //   cmake {
-    //       path = file("src/main/cpp/asurfacerenderer/CMakeLists.txt")
-    //   }
-    // }
-
-    // externalNativeBuild {
-    //    cmake {
-    //        path = file("src/main/cpp/evshim/CMakeLists.txt")
-    //    }
-    // }
-
-    // xconnectorpatch is shipped as a prebuilt jniLib because our APK packaging flow
-    // does not rebuild native libraries during release creation.
-    // externalNativeBuild {
-    //     cmake {
-    //         path = file("src/main/cpp/xconnectorpatch/CMakeLists.txt")
-    //         version = "3.22.1"
-    //     }
-    // }
-
-    // build extras needed in libwinlator_bionic.so
-    // externalNativeBuild {
-    //     cmake {
-    //         path = file("src/main/cpp/extras/CMakeLists.txt")   // the file shown above
-    //         version = "3.22.1"
-    //     }
-    // }
-
-    // cmake on release builds a proot that fails to process ld-2.31.so
-    // externalNativeBuild {
-    //     cmake {
-    //         path = file("src/main/cpp/CMakeLists.txt")
-    //         version = "3.22.1"
-    //     }
-    // }
-
-    // (For now) Uncomment for LeakCanary to work.
-    // configurations {
-    //     debugImplementation {
-    //         exclude(group = "junit", module = "junit")
-    //     }
-    // }
 }
 
 dependencies {
@@ -384,9 +340,6 @@ dependencies {
 
     // Room Database
     implementation(libs.bundles.room)
-
-    // Memory Leak Detection
-    // debugImplementation("com.squareup.leakcanary:leakcanary-android:3.0-alpha-8")
 
     // Testing
     androidTestImplementation(platform(libs.androidx.compose.bom))
