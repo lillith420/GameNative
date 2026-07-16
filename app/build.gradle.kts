@@ -20,18 +20,19 @@ val keystoreProperties: Properties? = if (keystorePropertiesFile.exists()) {
     }
 } else null
 
-// Add PostHog API key and host as build-time variables
-val posthogApiKey: String = project.findProperty("POSTHOG_API_KEY") as String? ?: System.getenv("POSTHOG_API_KEY") ?: ""
-val posthogHost: String = project.findProperty("POSTHOG_HOST") as String? ?: System.getenv("POSTHOG_HOST") ?: "https://us.i.posthog.com"
+// Safely resolve environment variables at the top level
+val cloudProjectNumber: String = System.getenv("CLOUD_PROJECT_NUMBER") ?: "0"
+val posthogApiKey: String = System.getenv("POSTHOG_API_KEY") ?: "none"
+val posthogHost: String = System.getenv("POSTHOG_HOST") ?: "https://us.i.posthog.com"
+val steamGridDbApiKey: String = System.getenv("STEAMGRIDDB_API_KEY") ?: "none"
 
-val metaAppId: String = project.findProperty("META_APP_ID") as String? ?: System.getenv("META_APP_ID") ?: ""
-val productSku: String = project.findProperty("PRODUCT_SKU") as String? ?: System.getenv("PRODUCT_SKU") ?: ""
+val metaAppId: String = System.getenv("META_APP_ID") ?: ""
+val productSku: String = System.getenv("PRODUCT_SKU") ?: ""
 
 room {
     schemaDirectory("$projectDir/schemas")
 }
 
-// Debug-only: package the repo's manifest.json so debug builds read it locally (never in release).
 val copyDebugManifest by tasks.registering(Copy::class) {
     from(rootProject.file("manifest.json"))
     into(layout.buildDirectory.dir("generated/debugManifest"))
@@ -40,8 +41,6 @@ val copyDebugManifest by tasks.registering(Copy::class) {
 android {
     namespace = "app.gamenative"
     compileSdk = 36
-
-    // https://developer.android.com/ndk/downloads
     ndkVersion = "27.3.13750724"
 
     signingConfigs {
@@ -57,7 +56,6 @@ android {
 
     defaultConfig {
         applicationId = "app.gamenative"
-
         minSdk = 26
 
         manifestPlaceholders["screenOrientation"] = "unspecified"
@@ -69,12 +67,11 @@ android {
 
         buildConfigField("boolean", "GOLD", "false")
 
-        // Personal fork: no analytics/box-art keys needed. Empty string literals keep
-        // BuildConfig valid. Drop real values in later via gradle.properties if wanted.
-        buildConfigField("String", "CLOUD_PROJECT_NUMBER", "\"\"")
-        buildConfigField("String", "POSTHOG_API_KEY", "\"\"")
-        buildConfigField("String", "POSTHOG_HOST", "\"\"")
-        buildConfigField("String", "STEAMGRIDDB_API_KEY", "\"\"")
+        // Populate fields with safely resolved variables
+        buildConfigField("String", "CLOUD_PROJECT_NUMBER", "\"$cloudProjectNumber\"")
+        buildConfigField("String", "POSTHOG_API_KEY", "\"$posthogApiKey\"")
+        buildConfigField("String", "POSTHOG_HOST", "\"$posthogHost\"")
+        buildConfigField("String", "STEAMGRIDDB_API_KEY", "\"$steamGridDbApiKey\"")
 
         val iconValue = "@mipmap/ic_launcher"
         val iconRoundValue = "@mipmap/ic_launcher_round"
@@ -85,36 +82,12 @@ android {
             ),
         )
 
-        ndk {
-            //abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a"))
-        }
-
-        // Localization support - specify which languages to include
-        resourceConfigurations += listOf(
-            "en",      // English (default)
-            "es",      // Spanish
-            "da",      // Danish
-            "pt-rBR",  // Portuguese (Brazilian)
-            "zh-rTW",  // Traditional Chinese
-            "zh-rCN",  // Simplified Chinese
-            "fr",      // French
-            "de",      // German
-            "uk",      // Ukrainian
-            "it",      // Italian
-            "ro",      // Română
-            "pl",      // Polish
-            "ru",      // Russian
-            "ko",      // Korean
-            "ja",      // Japanese
-        )
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
 
         proguardFiles(
-            // getDefaultProguardFile("proguard-android-optimize.txt"),
             getDefaultProguardFile("proguard-android.txt"),
             "proguard-rules.pro",
         )
@@ -217,26 +190,15 @@ android {
             excludes += "/META-INF/versions/9/OSGI-INF/MANIFEST.MF"
         }
         jniLibs {
-            // 'extractNativeLibs' was not enough to keep the jniLibs and
-            // the libs went missing after adding on-demand feature delivery
             useLegacyPackaging = true
-        }
-    }
-    testOptions {
-        unitTests {
-            isIncludeAndroidResources = true
         }
     }
 
     lint {
-        // Locale files ship full AndroidX appcompat (abc_*) translations that aren't in the
-        // default locale. These extra translations are harmless and pre-existing; without this
-        // the release-only lintVital pass fails on 150+ ExtraTranslation errors.
         disable += "ExtraTranslation"
     }
     dynamicFeatures += setOf(":ubuntufs")
 
-    // Configure Assets to be used in different variants
     sourceSets {
         getByName("legacy") {
             java.srcDir("src/nonXr/java")
@@ -272,45 +234,28 @@ android {
             assets.srcDir(copyDebugManifest)
         }
     }
-
-    kotlinter {
-        ignoreFormatFailures = false
-    }
 }
 
 dependencies {
     implementation(libs.material)
-
-    // Chrome Custom Tabs for GOG OAuth
     implementation("androidx.browser:browser:1.8.0")
 
-    // JavaSteam
-    val localBuild = false // Change to 'true' needed when building JavaSteam manually
+    val localBuild = false
     if (localBuild) {
         implementation(files("../../JavaSteam/build/libs/javasteam-1.8.0.1-22-SNAPSHOT.jar"))
         implementation(files("../../JavaSteam/javasteam-depotdownloader/build/libs/javasteam-depotdownloader-1.8.0.1-22-SNAPSHOT.jar"))
         implementation(libs.bundles.javasteam.dev)
     } else {
-        implementation(libs.javasteam) {
-            isChanging = version?.contains("SNAPSHOT") ?: false
-        }
-        implementation(libs.javasteam.depotdownloader) {
-            isChanging = version?.contains("SNAPSHOT") ?: false
-        }
+        implementation(libs.javasteam) { isChanging = version?.contains("SNAPSHOT") ?: false }
+        implementation(libs.javasteam.depotdownloader) { isChanging = version?.contains("SNAPSHOT") ?: false }
     }
     implementation(libs.spongycastle)
     implementation(libs.okhttp.dnsoverhttps)
-
-    // Split Modules
     implementation(libs.bundles.google)
-
-    // Winlator
     implementation(libs.bundles.winlator)
     implementation(libs.libarchive.android)
     implementation(libs.zstd.jni) { artifact { type = "aar" } }
     implementation(libs.xz)
-
-    // Jetpack Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)
     implementation(libs.landscapist.coil)
@@ -318,8 +263,6 @@ dependencies {
     implementation(libs.media3.exoplayer.hls)
     implementation(libs.media3.ui)
     debugImplementation(libs.androidx.ui.tooling)
-
-    // Support
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.apng)
@@ -328,20 +271,11 @@ dependencies {
     implementation(libs.kotlin.coroutines)
     implementation(libs.timber)
     implementation(libs.zxing)
-
-    // Google Protobufs
     implementation(libs.protobuf.java)
-
-    // Hilt
     implementation(libs.bundles.hilt)
-
-    // KSP (Hilt, Room)
     ksp(libs.bundles.ksp)
-
-    // Room Database
     implementation(libs.bundles.room)
 
-    // Testing
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
@@ -358,9 +292,7 @@ dependencies {
     testImplementation(libs.orgJson)
     testImplementation(libs.mockwebserver)
 
-    // Add PostHog Android SDK dependency
     implementation("com.posthog:posthog-android:3.8.0")
-
     implementation("com.auth0.android:jwtdecode:2.0.2")
 
     "modernXrImplementation"("com.meta.horizon.platform.sdk:core-kotlin:0.2.2")
